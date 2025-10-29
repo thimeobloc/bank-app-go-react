@@ -9,4 +9,5 @@ import (
 func RegisterUserRoutes(r *gin.Engine, c *controllers.UserController) {
 	r.POST("/auth/register", c.Register)
 	r.POST("/auth/login", c.Login)
+	r.DELETE("/auth/token/delete", c.Delete)
 }

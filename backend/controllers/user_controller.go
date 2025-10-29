@@ -4,6 +4,7 @@ import (
 	"banque-app/backend/security"
 	"banque-app/backend/services"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,4 +60,33 @@ func (c *UserController) Login(ctx *gin.Context) {
 		"message": "login successful",
 		"token":   token,
 	})
+}
+
+func (c *UserController) Delete(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+		return
+	}
+
+	parts := strings.Split(authHeader, "Bearer ")
+	if len(parts) != 2 {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
+		return
+	}
+	tokenStr := parts[1]
+
+	claims, err := security.ValidateToken(tokenStr)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+		return
+	}
+
+	email := claims["email"].(string)
+	if err := c.Service.DeleteUser(email); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }

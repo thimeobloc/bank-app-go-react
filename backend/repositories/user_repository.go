@@ -22,3 +22,8 @@ func (r *UserRepository) FindByEmail(email string) (*models.User, error) {
 	}
 	return &u, nil
 }
+
+func (r *UserRepository) Delete(email string) error {
+	_, err := r.DB.Exec("DELETE FROM users WHERE email = ?", email)
+	return err
+}

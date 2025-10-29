@@ -39,3 +39,11 @@ func (s *UserService) LoginUser(email, password string) (*models.User, error) {
 
 	return existingUser, nil
 }
+
+func (s *UserService) DeleteUser(email string) error {
+	user, err := s.Repo.FindByEmail(email)
+	if err != nil || user == nil {
+		return fmt.Errorf("user not found")
+	}
+	return s.Repo.Delete(email)
+}
